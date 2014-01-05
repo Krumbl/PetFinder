@@ -1,0 +1,144 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" 
+					xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+					xsi:schemaLocation="http://www.blizzard.com/wow/ui/ 
+					..\..\FrameXML\UI.xsd">
+	<Script File="PetFinder.lua"/>
+
+
+	<Button name="PetFinder_Button" virtual="true">
+		<Size>
+			<AbsDimension x="32" y="32"/>
+		</Size>
+		<Anchors>
+			<Anchor point="TOPLEFT">
+				<Offset>
+					<AbsDimension x="15" y="-15"/>
+				</Offset>
+			</Anchor>
+		</Anchors>
+		<!--http://wowpedia.org/API_Minimap_SetBlipTexture -->
+		<!-- left, right, top, bottom = GetObjectIconTextureCoords(35); -->
+		<!-- /script print(GetObjectIconTextureCoords(0)) -->
+		<NormalTexture file="Interface/PetBattles/PetIcon-Critter">
+			<Size x="32" y="32"/>
+			<!-- 1/2, 100/128, 130/256, 167/256 -->
+			<TexCoords left="0.5" right="0.78125" top="0.5078125" bottom="0.65234375"/>
+		</NormalTexture>
+		<HighlightTexture file="Interface/MINIMAP/TRACKING/OBJECTICONS" mode="ALPHAKEY">
+			<TexCoords left="0.01953125" right="0.11328125" top="0.046875" bottom="0.421875" />
+		</HighlightTexture>
+		<Scripts>
+			<OnClick>
+				PetFinderButtonOnClick('Critter');
+				OnClickTest(self);
+			</OnClick>
+		</Scripts>
+	</Button>
+
+
+
+	<Frame name="PetFinderFrame"
+		enableMouse="true"
+		movable="true"
+		parent="UIParent"
+		>
+
+		<Size>
+			<AbsDimension x="128" y="190"/>
+		</Size>
+		
+		<Anchors>
+			<Anchor point="CENTER">
+				<Offset><AbsDimension x="0" y="0"/></Offset>
+			</Anchor>
+		</Anchors>
+
+		<Backdrop
+			bgFile="Interface\DialogFrame\UI-DialogBox-Background"
+			edgeFile="Interface\DialogFrame\UI-DialogBox-Border"
+			tile="true">
+			<BackgroundInsets>
+				<AbsInset left="11" right="12" top="12" bottom="11"/>
+			</BackgroundInsets>
+			<TileSize>
+				<AbsValue val="32"/>
+			</TileSize>
+			<EdgeSize>
+				<AbsValue val="32"/>
+			</EdgeSize>
+			<Color r="0.2" g="0.2" b="0.2" a="0.7"/>
+		</Backdrop>
+<!--
+		<Layers>
+			<Layer level="ARTWORK">
+				<Texture setAllPoitns="true">
+					<Color r="1.0" g="0.5" b="0.0" a="0.5"/>
+				</Texture>
+			</Layer>
+		</Layers>
+-->
+
+		
+
+		<Scripts>
+			<OnLoad>
+				print('test');
+				PetFinderOnLoad(this);
+				self:RegisterForDrag("LeftButton");
+
+				-- create buttons for each pet family
+				for i=1,10 do
+					local button = CreateFrame('Button', 'Button_' .. PetFinder_Families[i], self, 'PetFinder_Button');
+					button:SetPoint("TOPLEFT", self, "TOPLEFT", 16 + 32 * floor((i - 1) / 5), -16 - (32 * (i % 5)));
+					print(PetFinder_Families[i]);
+					button:SetScript('OnClick', function()
+						PetFinderButtonOnClick(PetFinder_Families[i]);
+					end);
+					--button:SetScript('OnClick', PetFinderButtonOnClick('Critter');
+					--button:SetScript('OnClick', PetFinderButtonOnClick(PetFinder_Families[i]);
+
+					button:SetNormalTexture('Interface/PetBattles/PetIcon-' .. PetFinder_Families[i]);
+				end
+
+				print('1');
+
+				-- all/none
+				local buttonAll = CreateFrame('Button', 'Button_' .. 'All', self, 'PetFinder_Button');
+				buttonAll:SetPoint("TOPLEFT", self, "TOPLEFT", 16 + 32 * 2, -16 - (32 * 1));
+				print('1.5');
+				buttonAll:SetScript('OnClick', function()
+					print('all');
+					C_PetJournal.AddAllPetTypesFilter();
+				end);
+				local textureAll = buttonAll:GetNormalTexture();
+				textureAll:SetTexture('Interface/MINIMAP/ObjectIcons');
+				textureAll:SetTexCoord(0.375,0.5,0.5,0.625);
+
+				local buttonNone = CreateFrame('Button', 'Button_' .. 'None', self, 'PetFinder_Button');
+				buttonNone:SetPoint("TOPLEFT", self, "TOPLEFT", 16 + 32 * 2, -16 - (32 * 3));
+				buttonNone:SetScript('OnClick', function()
+					print('none');
+					C_PetJournal.ClearAllPetTypesFilter();
+				end);
+
+				local textureNone = buttonNone:GetNormalTexture();
+				textureNone:SetTexture('Interface/MINIMAP/ObjectIcons');
+				textureNone:SetTexCoord(0.5,0.625,0.5,0.625);
+
+				print(self:GetName());
+			</OnLoad>
+			<OnShow>
+				PlaySound("UChatScrollButton");
+			</OnShow>
+			<OnHide>
+				PlaySound("UChatScrollButton");
+			</OnHide>
+			<OnDragStart>
+				self:StartMoving();
+			</OnDragStart>
+			<OnDragStop>
+				self:StopMovingOrSizing();
+			</OnDragStop>
+		</Scripts>
+	</Frame>
+</Ui>

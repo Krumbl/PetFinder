@@ -1,0 +1,7 @@
+## Author: Krumbl
+## Interface: 50400
+## Title: PetFinder
+## Notes: Pet Finder AddOn
+## SavedVariablesPerChracter: PetFinder
+PetFinder.lua
+PetFinder.xml
